@@ -27,7 +27,7 @@ tweets <- mongo(url = "mongodb://gabriel:1234@192.168.10.10:27017/admin", db = "
 tweets_df <- tweets$find(
   query='{}', 
   fields='{"text":1}', 
-  limit = 1000  # sacar el limite 
+  #limit = 1000  # sacar el limite 
 )
 
 #View(head(tweets_df, n=100))
@@ -59,12 +59,14 @@ tweets_transaction <- as(tweets_df[,"text_clean"], "transactions")
 inspect(head(tweets_transaction, 100))
 summary(tweets_transaction)
 
+tweets_df <- NULL # Se descarta el dataframe para liberar memoria RAM
+
 
 # Busqueda de reglas de asociación con APRIORI
-rules <- apriori(tweets_transaction, parameter =list(target="rules", support=0.001, confidence=0.5, maxlen=10))
-rules_subset <- subset(sort(rules, by="lift", decreasing = TRUE), subset = lift > 100 & count > 50)
+rules <- apriori(tweets_transaction, parameter =list(target="rules", support=0.001, confidence=0.3, maxlen=8))
+rules_subset <- subset(sort(rules, by="support", decreasing = TRUE), subset = lift > 100 & count > 50)
 inspect(rules_subset)
-inspect(rules[1:20])
+inspect(head(rules))
 
 # convert rules to a dataframe and then use View()
 rules_df <- as(rules,"data.frame")
@@ -88,5 +90,5 @@ plot(rules, method="two-key plot",  jitter = 0)
 subRulesTop <- head(rules_subset, n = 40, by = "confidence")
 plot(subRulesTop, method = "graph",  engine = "htmlwidget")
 
-subRulesTop <- head(rules_subset, n=40, by="lift")
+subRulesTop <- head(rules_subset, n=40, by="confidence")
 plot(subRulesTop, method="paracoord")
