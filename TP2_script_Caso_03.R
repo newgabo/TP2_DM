@@ -56,17 +56,17 @@ tweets_df$text_clean <- lapply(tweets_df$text_clean, function(x) stri_remove_emp
 
 # Se converte el DF a Transactions, con las columnas correspondientes
 tweets_transaction <- as(tweets_df[,"text_clean"], "transactions")
-inspect(head(tweets_transaction, 100))
+arules::inspect(head(tweets_transaction, 100))
 summary(tweets_transaction)
 
 tweets_df <- NULL # Se descarta el dataframe para liberar memoria RAM
 
 
 # Busqueda de reglas de asociación con APRIORI
-rules <- apriori(tweets_transaction, parameter =list(target="rules", support=0.001, confidence=0.3, maxlen=8))
+rules <- apriori(tweets_transaction, parameter =list(target="rules", support=0.001, confidence=0.3, maxlen=5))
 rules_subset <- subset(sort(rules, by="support", decreasing = TRUE), subset = lift > 100 & count > 50)
-inspect(rules_subset)
-inspect(head(rules))
+arules::inspect(rules_subset)
+arules::inspect(head(rules))
 
 # convert rules to a dataframe and then use View()
 rules_df <- as(rules,"data.frame")

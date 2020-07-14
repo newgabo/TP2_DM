@@ -29,22 +29,22 @@ tweets <- mongo(url = "mongodb://gabriel:1234@192.168.10.10:27017/admin", db = "
 tweets_df <- tweets$find(
   query='{"retweet_user_id": {"$exists": true, "$ne": null}}', 
   fields='{"user_id":1, "screen_name":1, "retweet_user_id":1, "retweet_screen_name":1}', 
-  #limit = 100  # sacar el limite 
+  #limit = 10000  # sacar el limite 
 )
 
 #View(head(tweets_df, n=100))
 
 # Se converte el DF a Transactions, con las columnas correspondientes
 tweets_transaction <- as(split(tweets_df[,"retweet_screen_name"], tweets_df[,"screen_name"]), "transactions")
-inspect(head(tweets_transaction, 100))
+arules::inspect(head(tweets_transaction, 100))
 summary(tweets_transaction)
 
 
 # Busqueda de reglas de asociación con APRIORI
-rules <- apriori(tweets_transaction, parameter =list(target="rules", support=0.0001, confidence=0.5, maxlen=10))
+rules <- apriori(tweets_transaction, parameter =list(target="rules", support=0.0001, confidence=0.5, maxlen=5))
 rules_subset <- subset(sort(rules, by="lift", decreasing = TRUE), subset = lift > 100 & count > 50)
-inspect(rules_subset)
-inspect(rules[1:10])
+arules::inspect(rules_subset)
+arules::inspect(rules[1:10])
 
 # convert rules to a dataframe and then use View()
 rules_df <- as(rules,"data.frame")
@@ -65,9 +65,9 @@ plot(rules, method="two-key plot",  jitter = 0)
 
 
 # Grafo interactivo de rules associations
-subRulesTop <- head(rules_subset, n = 40, by = "confidence")
+subRulesTop <- head(rules, n = 40, by = "confidence")
 plot(subRulesTop, method = "graph",  engine = "htmlwidget")
 
 
-subRulesTop <- head(rules_subset, n=40, by="lift")
+subRulesTop <- head(rules, n=40, by="lift")
 plot(subRulesTop, method="paracoord")
