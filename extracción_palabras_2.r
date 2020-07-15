@@ -21,7 +21,7 @@ tweets_corpus_df$text_ajustado<-tweets_corpus_df$text
 tweets_corpus_df$retweet_count<-discretize(tweets_corpus_df$retweet_count, method = "fixed", breaks=c(-Inf, 1, 2, 3, 4, +Inf), labels=c("Ninguno", "1 RT","2 RT","3 RT","4 RT"))
 colnames(tweets_corpus_df)[3]<-"RT: "
   
-tweets_corpus_df$followers_count<-discretize(log10(tweets_corpus_df$followers_count), method = "fixed", breaks=c(-Inf, 2, 4,+Inf),labels=c("Pocos","Nivel medio","Muchos"))
+tweets_corpus_df$followers_count<-discretize(log(df_tweets_edg$followers_count), breaks = 3, labels=c("pocos", "medio", "muchos"))
 colnames(tweets_corpus_df)[4]<-"followers: "
 
 #-----Limpieza de texto
